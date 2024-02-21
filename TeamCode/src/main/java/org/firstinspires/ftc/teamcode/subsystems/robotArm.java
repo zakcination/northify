@@ -31,10 +31,10 @@ public class robotArm {
     private static final double HOME_SHOULDER_POSITION = 0;
     private static final double[] HOME_ELBOW_POSITIONS = {-0.5, 0.5};
 
-    private static final double INTAKE_SHOULDER_POSITION = -21; // Adjust as needed
+    private static final double INTAKE_SHOULDER_POSITION = 35; // Adjust as needed
     private static final double[] INTAKE_ELBOW_POSITIONS = {0, 1}; // Adjust as needed
 
-    private static final double TRANSFER_SHOULDER_POSITION = -10;
+    private static final double TRANSFER_SHOULDER_POSITION = 26;
     private static final double[] TRANSFER_ELBOW_POSITIONS = {1, 0};
 
     private static final double PID_Coefficient_shoulder = 99;
@@ -47,7 +47,7 @@ public class robotArm {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake_motor");
 
 
-        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shoulderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shoulderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shoulderMotor.setPositionPIDFCoefficients(PID_Coefficient_shoulder);

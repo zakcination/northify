@@ -68,7 +68,7 @@ public class mainDrive extends LinearOpMode {
             if(gamepad1.right_bumper) {
             }
 
-            telemetry.addData("leftFront: ", drive.leftFront.getCurrentPosition());
+            telemetry.addData("leftFront: ", drive.leftBack.getCurrentPosition());
             telemetry.addData("rightFront: ", drive.rightFront.getCurrentPosition());
             telemetry.update();
         }

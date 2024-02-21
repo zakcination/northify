@@ -64,7 +64,7 @@ public final class MecanumDrive {
         public double inPerTick = 1;
         public double lateralInPerTick = inPerTick;
         public double trackWidthTicks = 12.55906; // in
-        public static double GEAR_RATIO = 10.0 / 20.0;
+        public static double GEAR_RATIO = 10.0 / 10.0;
         public static double WHEEL_RADIUS = 1.8898;
         public static final double MAX_RPM = 312.5;
 
