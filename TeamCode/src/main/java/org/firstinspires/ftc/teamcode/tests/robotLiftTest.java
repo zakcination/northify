@@ -14,50 +14,54 @@ import org.firstinspires.ftc.teamcode.subsystems.robotLift;
 @TeleOp(name = "RobotLiftTest", group = "Tests")
 
 public class robotLiftTest extends LinearOpMode {
+
+    private org.firstinspires.ftc.teamcode.subsystems.robotLift robotLift;
+    private final ElapsedTime runtime = new ElapsedTime();
+
     @Override
     public void runOpMode() throws InterruptedException {
+        robotLift = new robotLift(hardwareMap); // Initialize the robot lift subsystem
+
+        gamepad1 = new Gamepad();
+        telemetry.update();
+
+
         waitForStart();
 
         while (opModeIsActive()) {
-            // Get input from the gamepad to control the shooter motor
-            double power = gamepad1.right_trigger; // Example: Use right trigger to control power
+            if (gamepad1.dpad_up) {
+                robotLift.setStateScore();
+            }
+            if (gamepad1.dpad_down) {
+                robotLift.setStateTransfer();
+            }
 
-            // Control the shooter motor based on gamepad input
-//            robotLift.setPower(power);
+            robotLift.updateState();
 
-            // Optionally, you can add telemetry to display shooter velocity or any other information
-            telemetry.addData("Shooter Power", power);
+            telemetry.addData("Lift State", robotLift.currentState);
+            telemetry.addData("Lift Encoder", robotLift.liftMotor.getCurrentPosition());
+            telemetry.addData("Outtake State", robotLift.currentOuttakeState);
             telemetry.update();
-
-            // Add a short delay to prevent the loop from running too fast
-            sleep(50);
         }
     }
-}
 
-//public class robotLiftTest1 extends LinearOpMode {
-//    private org.firstinspires.ftc.teamcode.subsystems.robotArm robotArm;
-//    private final ElapsedTime runtime = new ElapsedTime();
-//
-//    @Override
-//    public void runOpMode(){
-//        robotArm = new robotArm(hardwareMap); // Initialize the robot arm subsystem
-//        gamepad1 = new Gamepad();
-//        telemetry.update();
-//        waitForStart();
-//
-//        while (opModeIsActive()) {
-//            if (gamepad1.y) {}
-//            if (gamepad1.a) {}
-//            if (gamepad1.x) {}
-//            if (gamepad1.b) {}
-//            if (gamepad1.right_bumper) {}
-//            if (gamepad1.left_bumper) {}
-//            if (gamepad1.dpad_down) {}
-//            if (gamepad1.dpad_up) {}
-//            if (gamepad1.dpad_left) {}
-//            if (gamepad1.dpad_right) {}
-//            telemetry.update();
-//        }
-//    }
-//}
+    private void testLiftScorePosition() {
+        robotLift.setStateScore();
+        sleep(1000);
+        robotLift.setStateStart();
+    }
+
+    private void testLiftTransferPosition() {
+        robotLift.setStateTransfer();
+        sleep(1000);
+        robotLift.setStateStart();
+    }
+
+    private void testLiftStartPosition() {
+        robotLift.setStateStart();
+    }
+
+    private void displayEncoderValues() {
+        telemetry.addData("Lift Encoder", robotLift.liftMotor.getCurrentPosition());
+    }
+}

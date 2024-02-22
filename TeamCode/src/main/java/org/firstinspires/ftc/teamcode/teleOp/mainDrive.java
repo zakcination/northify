@@ -5,11 +5,30 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.robotArm;
+import org.firstinspires.ftc.teamcode.subsystems.robotLift;
+import org.firstinspires.ftc.teamcode.subsystems.intake;
 
 @TeleOp (name = "MainDrive")
 public class mainDrive extends LinearOpMode {
+
+    private robotArm RobotArm;
+    private robotLift RobotLift;
+    private intake Intake;
+
+
+
     @Override
     public void runOpMode() throws InterruptedException {
+
+        RobotArm = new robotArm(hardwareMap);
+        RobotLift = new robotLift(hardwareMap);
+        Intake = new intake(hardwareMap);
+
+
+        RobotArm.setStateStart();
+        RobotLift.setStateStart();
+        Intake.setStateStop();
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         double  min = -1;
@@ -20,7 +39,7 @@ public class mainDrive extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = gamepad1.left_stick_y; // Keep y-axis as is
+            double y = -gamepad1.left_stick_y; // Keep y-axis as is
             double x = gamepad1.left_stick_x * 1.12; // Assign left stick's x-axis to x for strafing
             double rx = -gamepad1.right_stick_x; // Invert right stick's x-axis and assign it to rx for in-place turning
 
@@ -41,38 +60,54 @@ public class mainDrive extends LinearOpMode {
             backRightPower = clamp(backRightPower, minPower, maxPower);
 
 // Set motor powers
-            drive.leftFront.setPower(frontLeftPower);
-            drive.leftBack.setPower(backLeftPower);
+            drive.leftFront.setPower(-frontLeftPower);
+            drive.leftBack.setPower(-backLeftPower);
             drive.rightFront.setPower(frontRightPower);
             drive.rightBack.setPower(backRightPower);
 
 
 
-            if(gamepad1.dpad_up){
-                drive.rightFront.setPower(0.75);
-            }
-            if(gamepad1.dpad_down){
-                drive.leftFront.setPower(0.75);
-            }
-            if(gamepad1.dpad_left){
-                drive.leftBack.setPower(0.75);
-            }
-            if(gamepad1.dpad_right){
-                drive.rightBack.setPower(0.75);
+//            if(gamepad1.dpad_up){
+//                drive.rightFront.setPower(0.75);
+//            }
+//            if(gamepad1.dpad_down){
+//                drive.leftFront.setPower(0.75);
+//            }
+//            if(gamepad1.dpad_left){
+//                drive.leftBack.setPower(0.75);
+//            }
+//            if(gamepad1.dpad_right){
+//                drive.rightBack.setPower(0.75);
+//            }
+
+//            else if(!hanger){
+//            }
+//            if(gamepad1.left_bumper){
+//            }
+//            if(gamepad1.right_bumper) {
+//            }
+
+            if (gamepad1.dpad_down) {
+                RobotArm.setStateIntake();
+            } else if (gamepad1.dpad_right) {
+                RobotArm.setStateTransfer();
+                RobotLift.setStateTransfer();
+            } else if (gamepad1.dpad_up) {
+                RobotLift.setStateScore();
             }
 
-            else if(!hanger){
-            }
-            if(gamepad1.left_bumper){
-            }
-            if(gamepad1.right_bumper) {
-            }
+            RobotArm.updateState();
+            RobotLift.updateState();
 
-            telemetry.addData("leftFront: ", drive.leftFront.getCurrentPosition());
+            telemetry.addData("leftFront: ", drive.rightBack.getCurrentPosition());
             telemetry.addData("rightFront: ", drive.rightFront.getCurrentPosition());
+            RobotArm.telemetryElbowPositions(telemetry);
+            Intake.displayIntakeState(telemetry);
+            RobotArm.telemetryArmState(telemetry);
             telemetry.update();
         }
     }
+
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
     }

@@ -2,39 +2,35 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 
 public class robotArm {
 
     private enum ArmState {
         INTAKE,
         TRANSFER,
-        HOME
+        START
     }
 
-    private boolean isIntakeReversed = false;
-    private ArmState currentState = ArmState.INTAKE;
+    private ArmState currentState = ArmState.START;
 
     public DcMotorEx shoulderMotor;
-    private Servo[] elbowServos;
-    public DcMotorEx intakeMotor;
+    private final Servo[] elbowServos;
+
 
     private static final double SHOULDER_VELOCITY = 0.7; // Adjust as needed
     private static final double ELBOW_VELOCITY = 1000; // Adjust as needed
-    private static final double INTAKE_VELOCITY = 1.0; // Adjust as needed
-    private static final double INTAKE_POWER = 1.0; // Adjust as needed
 
-    private static final double HOME_SHOULDER_POSITION = 0;
-    private static final double[] HOME_ELBOW_POSITIONS = {-0.5, 0.5};
-
-    private static final double INTAKE_SHOULDER_POSITION = -21; // Adjust as needed
+    private static final double START_SHOULDER_POSITION = 0;
+    private static final double[] START_ELBOW_POSITIONS = {0, 1};
+    private static final double INTAKE_SHOULDER_POSITION = 46; // Adjust as needed
     private static final double[] INTAKE_ELBOW_POSITIONS = {0, 1}; // Adjust as needed
 
-    private static final double TRANSFER_SHOULDER_POSITION = -10;
+    private static final double TRANSFER_SHOULDER_POSITION = 25;
     private static final double[] TRANSFER_ELBOW_POSITIONS = {1, 0};
 
     private static final double PID_Coefficient_shoulder = 99;
@@ -44,13 +40,22 @@ public class robotArm {
         elbowServos = new Servo[2];
         elbowServos[0] = hardwareMap.get(Servo.class, "elbow_servo_left");
         elbowServos[1] = hardwareMap.get(Servo.class, "elbow_servo_right");
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake_motor");
 
-
-        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shoulderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shoulderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shoulderMotor.setPositionPIDFCoefficients(PID_Coefficient_shoulder);
+        int armShutdownThreshold = 10;
+        boolean manualMode = false;
+        if (!manualMode &&
+                shoulderMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION &&
+                shoulderMotor.getTargetPosition() <= armShutdownThreshold &&
+                shoulderMotor.getCurrentPosition() <= armShutdownThreshold
+        ) {
+            shoulderMotor.setPower(0.0);
+            shoulderMotor.setPower(0.0);
+            shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            shoulderMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
     }
     public void setStateIntake() {
         currentState = ArmState.INTAKE;
@@ -58,8 +63,8 @@ public class robotArm {
     public void setStateTransfer() {
         currentState = ArmState.TRANSFER;
     }
-    public void setStateHome(){
-        currentState = ArmState.HOME;
+    public void setStateStart(){
+        currentState = ArmState.START;
     }
     public void updateState() {
         switch (currentState) {
@@ -71,9 +76,9 @@ public class robotArm {
                 setShoulderPosition(TRANSFER_SHOULDER_POSITION);
                 setElbowPositions(TRANSFER_ELBOW_POSITIONS);
                 break;
-            case HOME:
-                setShoulderPosition(HOME_SHOULDER_POSITION);
-                setElbowPositions(HOME_ELBOW_POSITIONS);
+            case START:
+                setShoulderPosition(START_SHOULDER_POSITION);
+                setElbowPositions(START_ELBOW_POSITIONS);
                 break;
         }
     }
@@ -98,37 +103,23 @@ public class robotArm {
             elbowServos[i].setPosition(TRANSFER_ELBOW_POSITIONS[i]);
         }
     }
-    public void setElbowHomePosition(){
+    public void setElbowStartPosition(){
         for (int i = 0; i < elbowServos.length; i++){
-            elbowServos[i].setPosition(HOME_ELBOW_POSITIONS[i]);
+            elbowServos[i].setPosition(START_ELBOW_POSITIONS[i]);
         }
     }
 
     public void setShoulderIntakePosition(){
         setShoulderPosition(INTAKE_SHOULDER_POSITION);
     }
-    public void setShoulderHomePosition(){
-        setShoulderPosition(HOME_SHOULDER_POSITION);
+    public void setShoulderStartPosition(){
+        setShoulderPosition(START_SHOULDER_POSITION);
     }
 
     public void setShoulderTransferPosition() {
         setShoulderPosition(TRANSFER_SHOULDER_POSITION);
     }
-    public void stopIntake() {
-        intakeMotor.setVelocity(0);
-    }
 
-    public void intake() {
-        // Implement intake logic as needed
-        intakeMotor.setPower(INTAKE_POWER);
-        isIntakeReversed = false;
-    }
-
-    public void reverseIntake() {
-        // Implement reverse intake logic as needed
-        intakeMotor.setPower(-INTAKE_POWER);
-        isIntakeReversed = true;
-    }
 
     public double getShoulderPosition() {
         return shoulderMotor.getCurrentPosition();
@@ -142,9 +133,7 @@ public class robotArm {
         return positions;
     }
 
-    public boolean isIntakeReversed() {
-        return isIntakeReversed;
-    }
+
     public void telemetryElbowPositions(Telemetry telemetry) {
         double[] elbowPositions = getElbowsPositions();
 
@@ -152,27 +141,13 @@ public class robotArm {
             telemetry.addData("Elbow " + i + " Position", elbowPositions[i]);
         }
     }
-
-    public void telemetryIntakeState(Telemetry telemetry) {
-        telemetry.addData("Intake State", isIntakeReversed ? "REVERSED" : "NORMAL");
-    }
     public void telemetryArmState(Telemetry telemetry) {
         telemetry.addData("Arm State", currentState.toString());
+        telemetry.addData("Shoulder Position", shoulderMotor.getCurrentPosition());
     }
 
     //    TODO: if needed change name of the void
     //          head it is intake
-    public void headAndShoulders_INTAKE(){
-        setShoulderIntakePosition();
-        setStateIntake();
-        setElbowsIntakePosition();
-        intake();
-    }
-    public void headAndShoulders_TRANSFER(){
-        setStateTransfer();
-        setShoulderTransferPosition();
-        setElbowsTransferPosition();
-    }
 
     // Set position methods for intake and transfer positions
 }
