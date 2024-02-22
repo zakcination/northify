@@ -50,11 +50,17 @@ public class robotArmTest extends LinearOpMode {
     }
 
 
-//    private void displayEncoderValues() {
-//        telemetry.addData("Shoulder Encoder", robotArm.getShoulderPosition());
-//        robotArm.telemetryElbowPositions(telemetry);
-//        robotArm.telemetryArmState(telemetry);
-//        // Add telemetry for elbows and intake as needed
-//        telemetry.update();
-//    }
+
+
+
+
+
+
+    private void displayEncoderValues() {
+        telemetry.addData("Shoulder Encoder", robotArm.getShoulderPosition());
+        robotArm.telemetryElbowPositions(telemetry);
+        robotArm.telemetryArmState(telemetry);
+        // Add telemetry for elbows and intake as needed
+        telemetry.update();
+    }
 }
