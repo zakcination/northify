@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.drone;
 import org.firstinspires.ftc.teamcode.subsystems.robotArm;
 import org.firstinspires.ftc.teamcode.subsystems.robotLift;
 import org.firstinspires.ftc.teamcode.subsystems.intake;
@@ -12,28 +16,30 @@ import org.firstinspires.ftc.teamcode.subsystems.intake;
 @TeleOp (name = "MainDrive")
 public class mainDrive extends LinearOpMode {
 
-    private robotArm RobotArm;
-    private robotLift RobotLift;
-    private intake Intake;
-
+    private robotArm robotArm;
+    private robotLift robotLift;
+    private org.firstinspires.ftc.teamcode.subsystems.intake intake;
+    private drone drone;
 
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        RobotArm = new robotArm(hardwareMap);
-        RobotLift = new robotLift(hardwareMap);
-        Intake = new intake(hardwareMap);
+        robotArm = new robotArm(hardwareMap);
+        robotLift = new robotLift(hardwareMap);
+        intake = new intake(hardwareMap);
+        drone = new drone(hardwareMap);
 
 
-        RobotArm.setStateStart();
-        RobotLift.setStateStart();
-        Intake.setStateStop();
+        robotArm.setStateStart();
+        robotLift.setStateStart();
+        intake.setStateStop();
+        drone.setStateCharged();
+
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        double  min = -1;
-        double  max = 1;
-        boolean hanger = false;
+        gamepad1 = new Gamepad();
+        telemetry.update();
         waitForStart();
 
         if (isStopRequested()) return;
@@ -60,51 +66,51 @@ public class mainDrive extends LinearOpMode {
             backRightPower = clamp(backRightPower, minPower, maxPower);
 
 // Set motor powers
-            drive.leftFront.setPower(-frontLeftPower);
-            drive.leftBack.setPower(-backLeftPower);
+            drive.leftFront.setPower(frontLeftPower);
+            drive.leftBack.setPower(backLeftPower);
             drive.rightFront.setPower(frontRightPower);
             drive.rightBack.setPower(backRightPower);
 
-
-
-//            if(gamepad1.dpad_up){
-//                drive.rightFront.setPower(0.75);
-//            }
-//            if(gamepad1.dpad_down){
-//                drive.leftFront.setPower(0.75);
-//            }
-//            if(gamepad1.dpad_left){
-//                drive.leftBack.setPower(0.75);
-//            }
-//            if(gamepad1.dpad_right){
-//                drive.rightBack.setPower(0.75);
-//            }
-
-//            else if(!hanger){
-//            }
-//            if(gamepad1.left_bumper){
-//            }
-//            if(gamepad1.right_bumper) {
-//            }
-
-            if (gamepad1.dpad_down) {
-                RobotArm.setStateIntake();
-            } else if (gamepad1.dpad_right) {
-                RobotArm.setStateTransfer();
-                RobotLift.setStateTransfer();
-            } else if (gamepad1.dpad_up) {
-                RobotLift.setStateScore();
+            if (gamepad2.dpad_down) {
+                robotArm.setStateIntake();
+            }
+            if (gamepad2.dpad_left) {
+                robotArm.setStateTransfer();
+                robotLift.setStateTransfer();
+            }
+            if (gamepad2.dpad_up) {
+                robotLift.setStateScore();
+            }
+            if(gamepad2.x){
+                intake.intakeMotor.setPower(1);
+            }
+            if (gamepad2.y){
+                intake.intakeMotor.setPower(-1);
+            }
+            if(gamepad2.a){
+                robotArm.setStateStart();
+            }
+            if(gamepad2.b) {
+                intake.intakeMotor.setPower(0);
+            }
+            if (gamepad2.right_stick_button && gamepad2.left_stick_button ){
+                    drone.setStateNotCharged();
+            }
+            if (gamepad2.dpad_right){
+                    robotLift.setStateTransfer();
             }
 
-            RobotArm.updateState();
-            RobotLift.updateState();
+            robotArm.updateState();
+            robotLift.updateState();
 
             telemetry.addData("leftFront: ", drive.rightBack.getCurrentPosition());
             telemetry.addData("rightFront: ", drive.rightFront.getCurrentPosition());
-            RobotArm.telemetryElbowPositions(telemetry);
-            Intake.displayIntakeState(telemetry);
-            RobotArm.telemetryArmState(telemetry);
+            robotArm.telemetryElbowPositions(telemetry);
+            intake.displayIntakeState(telemetry);
+            robotArm.telemetryArmState(telemetry);
             telemetry.update();
+            idle();
+
         }
     }
 

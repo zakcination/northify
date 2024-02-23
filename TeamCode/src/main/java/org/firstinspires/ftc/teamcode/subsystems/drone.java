@@ -13,7 +13,7 @@ public class drone {
         NOT_CHARGED,
     }
 
-    private double CHARGED_POSITION = 0.0;
+    private double CHARGED_POSITION = 0.5;
     private double NOT_CHARGED_POSITION = 1.0;
     public droneState currentState = droneState.CHARGED;
     public Servo droneServo;

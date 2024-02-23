@@ -20,13 +20,15 @@ public class intake {
     }
 
     public DcMotorEx intakeMotor;
-    public IntakeState currentState = IntakeState.IN;
+    public IntakeState currentState = IntakeState.STOP;
 
     private static final double INTAKE_VELOCITY = 1.0; // Adjust as needed
     private static final double INTAKE_POWER = 1.0; // Adjust as needed
+    private static final double PID_Coefficient_intake = 150;
     public intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake_motor");
         intakeMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        intakeMotor.setPositionPIDFCoefficients(150);
     }
 
     public void setStateStop() {
@@ -49,9 +51,6 @@ public class intake {
                 break;
             case TRANSFER:
                 intakeMotor.setPower(-INTAKE_POWER);
-                SleepAction sleepAction = new SleepAction(1000);
-                sleepAction.run(new TelemetryPacket());
-                currentState = IntakeState.STOP;
             case STOP:
                 intakeMotor.setPower(0);
                 break;

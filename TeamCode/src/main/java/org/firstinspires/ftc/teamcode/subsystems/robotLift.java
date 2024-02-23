@@ -17,21 +17,23 @@ public class robotLift {
     public ServoImplEx outtakeServo;
 
     private static final double START_LIFT_POSITION = 0;
-    private static final double SCORING_LIFT_POSITION = 1025;
+    private static final double SCORING_LIFT_POSITION = 1000;
     private static final double PID_Coefficient_lift = 15;
 
     private static final double LIFT_VELOCITY = 1.0; // Adjust as needed
     private static final double LIFT_POWER = 1.0; // Adjust as needed
 
-    private static final double SCORING_SERVO_POSITION = 0.5;
-    private static final double TRANSFER_SERVO_POSITION = 0.05;
+    private static final double SCORING_SERVO_POSITION = 0.4;
+    private static final double SHOOTER_SERVO_POSITION = 0.1;
+    private static final double TRANSFER_SERVO_POSITION = 0.00;
     private static final double START_SERVO_POSITION = 0;
 
 
     private enum OuttakeState {
         START,
         SCORE,
-        TRANSFER
+        TRANSFER,
+        SHOOT
     }
 
     private enum LiftState {
@@ -49,6 +51,11 @@ public class robotLift {
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         outtakeServo = hardwareMap.get(ServoImplEx.class, "outtake_servo");
+    }
+
+    public void setStateShoot() {
+        currentState = LiftState.SCORE;
+        currentOuttakeState = OuttakeState.SHOOT;
     }
 
     public void setStateScore() {
@@ -94,6 +101,9 @@ public class robotLift {
                 break;
             case TRANSFER:
                 setOuttakePosition(TRANSFER_SERVO_POSITION);
+                break;
+            case SHOOT:
+                setOuttakePosition(SHOOTER_SERVO_POSITION);
                 break;
         }
     }

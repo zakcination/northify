@@ -31,6 +31,9 @@ public class robotArmTest extends LinearOpMode {
             if (gamepad1.b) {
                 robotArm.setStateStart();
             }
+            if (gamepad1.dpad_right){
+                intake.intakeMotor.setPower(-1.0);
+            }
             if (gamepad1.dpad_down) {
                 intake.setStateIn();
             }
@@ -43,21 +46,13 @@ public class robotArmTest extends LinearOpMode {
             intake.updateState();
 
             robotArm.updateState();
-            robotArm.telemetryArmState(telemetry);
-            robotArm.telemetryElbowPositions(telemetry);
+            displayEncoderValues();
             telemetry.update();
         }
     }
 
 
-
-
-
-
-
-
     private void displayEncoderValues() {
-        telemetry.addData("Shoulder Encoder", robotArm.getShoulderPosition());
         robotArm.telemetryElbowPositions(telemetry);
         robotArm.telemetryArmState(telemetry);
         // Add telemetry for elbows and intake as needed
