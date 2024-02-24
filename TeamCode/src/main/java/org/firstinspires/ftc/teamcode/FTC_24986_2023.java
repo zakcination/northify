@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode;
 
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -7,14 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.drone;
 import org.firstinspires.ftc.teamcode.subsystems.robotArm;
 import org.firstinspires.ftc.teamcode.subsystems.robotLift;
 import org.firstinspires.ftc.teamcode.subsystems.intake;
 
 @TeleOp (name = "MainDrive")
-public class mainDrive extends LinearOpMode {
+public class FTC_24986_2023 extends LinearOpMode {
 
     private robotArm robotArm;
     private robotLift robotLift;
@@ -80,6 +79,9 @@ public class mainDrive extends LinearOpMode {
             }
             if (gamepad2.dpad_up) {
                 robotLift.setStateScore();
+            }
+            if (gamepad2.dpad_right){
+                robotArm.setStateStart();
             }
             if(gamepad2.x){
                 intake.intakeMotor.setPower(1);

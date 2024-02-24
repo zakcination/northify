@@ -18,6 +18,7 @@ public class robotArm {
     }
 
     private ArmState currentState = ArmState.IDLE;
+    private ArmState prevState = ArmState.IDLE;
 
     public DcMotorEx shoulderMotor;
     private final Servo[] elbowServos;
@@ -28,13 +29,13 @@ public class robotArm {
 
     private static final double START_SHOULDER_POSITION = 0;
     private static final double[] START_ELBOW_POSITIONS = {-1, -1};
-    private static final double INTAKE_SHOULDER_POSITION = 35.2; // Adjust as needed
-    private static final double[] INTAKE_ELBOW_POSITIONS = {0.145, 0.145}; // Adjust as needed
+    private static final double INTAKE_SHOULDER_POSITION = 95; // Adjust as needed
+    private static final double[] INTAKE_ELBOW_POSITIONS = {0.6, 0.6}; // Adjust as needed
 
-    private static final double TRANSFER_SHOULDER_POSITION = 50;
+    private static final double TRANSFER_SHOULDER_POSITION = 25;
     private static final double[] TRANSFER_ELBOW_POSITIONS = {1, 1};
 
-    private static final double PID_Coefficient_shoulder = 150;
+    private static final double PID_Coefficient_shoulder = 90;
 
     public robotArm(HardwareMap hardwareMap) {
         shoulderMotor = hardwareMap.get(DcMotorEx.class, "shoulder_motor");
@@ -60,30 +61,36 @@ public class robotArm {
 //        }
     }
     public void setStateIntake() {
+
         currentState = ArmState.INTAKE;
     }
     public void setStateTransfer() {
+        prevState = currentState;
         currentState = ArmState.TRANSFER;
     }
     public void setStateStart(){
+
+        prevState = currentState;
         currentState = ArmState.START;
     }
     public void setStateIdle(){
+
+        prevState = currentState;
         currentState = ArmState.IDLE;
     }
     public void updateState() {
         switch (currentState) {
             case INTAKE:
                 setElbowPositions(INTAKE_ELBOW_POSITIONS);
-                setShoulderPosition(INTAKE_SHOULDER_POSITION);
+                setShoulderPosition(INTAKE_SHOULDER_POSITION, 0.4);
                 break;
             case TRANSFER:
                 setElbowPositions(TRANSFER_ELBOW_POSITIONS);
-                setShoulderPosition(TRANSFER_SHOULDER_POSITION);
+                setShoulderPosition(TRANSFER_SHOULDER_POSITION, 0.7);
                 break;
             case START:
                 setElbowPositions(START_ELBOW_POSITIONS);
-                setShoulderPosition(START_SHOULDER_POSITION);
+                setShoulderPosition(START_SHOULDER_POSITION, 0.7);
                 break;
                 case IDLE:
                 shoulderMotor.setPower(0);
@@ -91,10 +98,21 @@ public class robotArm {
         }
     }
 
+    public void setStateIntakePosition(){
+        setElbowPositions(INTAKE_ELBOW_POSITIONS);
+
+    }
+
     public void setShoulderPosition(double position) {
         shoulderMotor.setTargetPosition((int) position);
         shoulderMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         shoulderMotor.setPower(0.7);
+    }
+
+    public void setShoulderPosition(double position, double power) {
+        shoulderMotor.setTargetPosition((int) position);
+        shoulderMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        shoulderMotor.setPower(power);
     }
     private void setElbowPositions(double[] positions) {
         for (int i = 0; i < elbowServos.length; i++) {
